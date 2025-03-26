@@ -3,12 +3,14 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useAuth } from '@/context/AuthContext';
 
 export default function LoginPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
+  const { setIsAuthenticated } = useAuth();
   const router = useRouter();
 
   async function handleSubmit(e: React.FormEvent) {
@@ -22,7 +24,7 @@ export default function LoginPage() {
 
     const data = await res.json();
     if (res.ok) {
-        // localStorage.setItem('token', data.token); 
+        setIsAuthenticated(true);
         setMessage('Login successful');
         router.push('/'); // Redirect after login
       } else {

@@ -23,7 +23,19 @@ export async function POST(req: Request) {
         }
 
         const token = jwt.sign({ id: user._id, email: user.email }, JWT_SECRET, { expiresIn: '1h' });
-        return NextResponse.json({ message: 'Login successful', token }, { status: 200 });
+
+        const response = NextResponse.json({ message: 'Login successful' }, { status: 200 });
+        response.cookies.set({
+          name: 'token',
+          value: token,
+        //   httpOnly: true, // Prevent access from JavaScript (more secure)
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'strict',
+          path: '/',
+        });
+
+        // return NextResponse.json({ message: 'Login successful', token }, { status: 200 });postcss.config.mjspostcss.config.mjs
+        return response;
     } catch (error) {
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }

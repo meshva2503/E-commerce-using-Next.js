@@ -12,8 +12,8 @@ export async function GET(req) {
     }
 
     jwt.verify(token, JWT_SECRET);
-    return NextResponse.json({ message: 'Authenticated' }, { status: 200 });
+    return NextResponse.json({ message: 'Authenticated', ok: true }, { status: 200 });
   } catch {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: 'Unauthorized', ok: false }, { status: 401 });
   }
 }

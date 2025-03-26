@@ -1,69 +1,94 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCart } from '@/context/CartContext';
+import { useAuth } from '@/context/AuthContext';
 
 export default function CartPage() {
-  const [cart, setCart] = useState([]);
+  const { cart, updateCartItem, removeFromCart, loading } = useCart();
+  const { isAuthenticated } = useAuth();
 
-  useEffect(() => {
-    const cartItems = JSON.parse(localStorage.getItem('cart') || '[]');
-    setCart(cartItems);
-  }, []);
+  // Calculate Subtotal
+  const subtotal = cart.reduce((acc, product) => acc + product.price * product.quantity, 0);
+  const tax = subtotal * 0.18; // 18% tax
+  const finalTotal = subtotal + tax;
 
-  function removeFromCart(productId: string) {
-    let cartItems = JSON.parse(localStorage.getItem('cart') || '[]');
-    cartItems = cartItems.filter((item: any) => item._id !== productId);
-    localStorage.setItem('cart', JSON.stringify(cartItems));
-    setCart(cartItems);
-  }
-
-  function updateQuantity(productId: string, quantity: number) {
-    let cartItems = JSON.parse(localStorage.getItem('cart') || '[]');
-    cartItems = cartItems.map((item: any) =>
-      item._id === productId ? { ...item, quantity } : item
-    );
-    localStorage.setItem('cart', JSON.stringify(cartItems));
-    setCart(cartItems);
-  }
+  if (loading) return <p className="text-center text-gray-500">Loading cart...</p>;
 
   return (
-    <div className="max-w-5xl mx-auto mt-10">
-      <h1 className="text-3xl font-bold mb-6 text-center">Shopping Cart</h1>
+    <div className="max-w-5xl mx-auto mt-10 p-6 bg-white shadow-md rounded-md">
+      <h1 className="text-3xl font-bold mb-6 text-center text-black">Shopping Cart</h1>
 
-      {cart.length === 0 ? (
+      {!isAuthenticated ? (
+        <p className="text-center text-gray-500">Please log in to view your cart.</p>
+      ) : cart.length === 0 ? (
         <p className="text-center text-gray-500">Your cart is empty</p>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {cart.map((product: any) => (
-            <div key={product._id} className="border p-4 rounded-md shadow-md">
-              <img src={product.image} alt={product.name} className="w-32 h-32 object-cover rounded-md" />
-              <h2 className="text-xl font-semibold mt-2">{product.name}</h2>
-              <p className="text-gray-600">{product.description}</p>
-              <p className="font-bold mt-2">${product.price}</p>
+        <>
+          {/* Cart Table */}
+          <table className="w-full border-collapse border border-gray-300">
+            <thead>
+              <tr className="bg-gray-200">
+                <th className="p-3 text-left text-black">Product</th>
+                <th className="p-3 text-center text-black">Quantity</th>
+                <th className="p-3 text-right text-black">Price</th>
+                <th className="p-3 text-right text-black">Total</th>
+                <th className="p-3 text-right text-black">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {cart.map((product: any) => (
+                <tr key={product.productId} className="border-b border-gray-300">
+                  {/* Product Info */}
+                  <td className="p-3 flex items-center space-x-4">
+                    <img src={product.image} alt={product.name} className="w-16 h-16 object-cover rounded-md text-black" />
+                    <div>
+                      <h2 className="text-lg font-semibold text-black">{product.name}</h2>
+                      <p className="text-gray-500 text-black">{product.description}</p>
+                    </div>
+                  </td>
 
-              {/* Quantity Selector */}
-              <div className="flex items-center mt-3">
-                <button 
-                  className="px-3 py-1 bg-gray-300 rounded-md"
-                  onClick={() => updateQuantity(product._id, Math.max(1, product.quantity - 1))}
-                > - </button>
-                <span className="mx-3">{product.quantity}</span>
-                <button 
-                  className="px-3 py-1 bg-gray-300 rounded-md"
-                  onClick={() => updateQuantity(product._id, product.quantity + 1)}
-                > + </button>
-              </div>
+                  {/* Quantity Controls */}
+                  <td className="p-3 text-center">
+                    <div className="flex items-center justify-center">
+                      <button 
+                        className="px-3 py-1 bg-gray-300 rounded-md text-black"
+                        onClick={() => updateCartItem(product.productId, product.quantity - 1)}
+                      > - </button>
+                      <span className="mx-3 text-black">{product.quantity}</span>
+                      <button 
+                        className="px-3 py-1 bg-gray-300 rounded-md text-black"
+                        onClick={() => updateCartItem(product.productId, product.quantity + 1)}
+                      > + </button>
+                    </div>
+                  </td>
 
-              {/* Remove Button */}
-              <button 
-                onClick={() => removeFromCart(product._id)} 
-                className="mt-3 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-              >
-                Remove
-              </button>
-            </div>
-          ))}
-        </div>
+                  {/* Price */}
+                  <td className="p-3 text-right text-black">${product.price.toFixed(2)}</td>
+
+                  {/* Total Price for Each Product */}
+                  <td className="p-3 text-right text-black">${(product.price * product.quantity).toFixed(2)}</td>
+
+                  {/* Remove Button */} 
+                  <td className="p-3 text-right text-black">
+                    <button 
+                      onClick={() => removeFromCart(product.productId)} 
+                      className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                    >
+                      Remove
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {/* Cart Summary */}
+          <div className="mt-6 text-right">
+            <p className="text-lg font-semibold text-black">Subtotal: <span className="ml-2">${subtotal.toFixed(2)}</span></p>
+            <p className="text-lg font-semibold text-black">Tax (18%): <span className="ml-2">${tax.toFixed(2)}</span></p>
+            <p className="text-xl font-bold mt-2 text-black">Final Total: <span className="ml-2">${finalTotal.toFixed(2)}</span></p>
+          </div>
+        </>
       )}
     </div>
   );

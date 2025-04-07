@@ -2,10 +2,15 @@
 
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 export default function CartPage() {
-  const { cart, updateCartItem, removeFromCart, loading } = useCart();
+  const { cart, updateCartItem, removeFromCart, loading,clearCart } = useCart();
   const { isAuthenticated } = useAuth();
+  const [message, setMessage] = useState('');
+  const router = useRouter();
+  
 
   // Calculate Subtotal
   const subtotal = cart.reduce((acc, product) => acc + product.price * product.quantity, 0);
@@ -13,6 +18,24 @@ export default function CartPage() {
   const finalTotal = subtotal + tax;
 
   if (loading) return <p className="text-center text-gray-500">Loading cart...</p>;
+
+  // async function handlePayment() {
+  //   console.log("car123:t",cart);
+  //   const res = await fetch('/api/payment', {
+  //     method: 'POST',
+  //     headers: { 'Content-Type': 'application/json' },
+  //     body: JSON.stringify({ cart }),
+  //   });
+
+  //   const data = await res.json();
+  //   if (res.ok) {
+  //       clearCart();
+  //       router.push('/');
+  //       setMessage("Order placed successfully")
+  //     } else {
+  //       setMessage(data.error || 'Something went wrong');
+  //     }
+  // }
 
   return (
     <div className="max-w-5xl mx-auto mt-10 p-6 bg-white shadow-md rounded-md">
@@ -87,7 +110,15 @@ export default function CartPage() {
             <p className="text-lg font-semibold text-black">Subtotal: <span className="ml-2">${subtotal.toFixed(2)}</span></p>
             <p className="text-lg font-semibold text-black">Tax (18%): <span className="ml-2">${tax.toFixed(2)}</span></p>
             <p className="text-xl font-bold mt-2 text-black">Final Total: <span className="ml-2">${finalTotal.toFixed(2)}</span></p>
+
+            <button
+            onClick={() => router.push('/payment')}
+            className="bg-green-500 text-white p-2 w-full"
+          >
+            Pay Now
+          </button>
           </div>
+
         </>
       )}
     </div>

@@ -5,6 +5,9 @@ import Navbar from '@/components/Navbar'
 import Footer from "@/components/Footer";
 import { CartProvider } from '@/context/CartContext';
 import { AuthProvider } from '@/context/AuthContext';
+import { GoogleOAuthProvider } from '@react-oauth/google';
+
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,6 +28,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body className="flex flex-col min-h-screen">
+      <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
       <AuthProvider>
       <CartProvider>
         <Navbar />
@@ -32,6 +36,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Footer />
         </CartProvider>
         </AuthProvider>
+        </GoogleOAuthProvider>
       </body>
     </html>
   );

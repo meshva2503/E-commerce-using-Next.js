@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState } from 'react';
+import { useSession, signOut } from 'next-auth/react';
 
 // Create Auth Context
 const AuthContext = createContext<any>(null);

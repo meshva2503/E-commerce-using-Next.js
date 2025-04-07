@@ -7,7 +7,6 @@ import { getUserIdFromToken } from '@/utils/auth';
 export async function GET(req: Request) {
   try {
     await connectDB();
-console.log("get");
     // Get user ID from token
     const userId = await getUserIdFromToken(req);
     console.log("userId:",userId);

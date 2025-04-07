@@ -70,9 +70,25 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           fetchCart();
         }
       }
+    
+      async function clearCart() {
+        try {
+          const res = await fetch('/api/cart/clear', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+          });
+    
+          if (res.ok) {
+            setCart([]); // Clear cart from state
+          }
+        } catch (error) {
+          console.error('Error clearing cart:', error);
+        }
+      }
+    
 
   return (
-    <CartContext.Provider value={{ cart, addToCart , fetchCart,updateCartItem,removeFromCart}}>
+    <CartContext.Provider value={{ cart, addToCart , fetchCart,updateCartItem,removeFromCart,clearCart, setCart}}>
       {children}
     </CartContext.Provider>
   );

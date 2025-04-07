@@ -7,11 +7,11 @@ export async function getUserIdFromToken(req: Request): Promise<string | null> {
   try {
     const token = req.headers.get('cookie')?.split('token=')[1]?.split(';')[0];
 
-    if (!token) return null; // No token found
+    if (!token) return null;
 
     const decoded = jwt.verify(token, JWT_SECRET) as { id: string };
     console.log("userId:",decoded.id);
-    return decoded.id; // Return user ID
+    return decoded.id; 
   } catch (error) {
     console.error('Error verifying token:', error);
     return null;

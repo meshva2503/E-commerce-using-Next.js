@@ -14,7 +14,7 @@ const Navbar = () => {
   const [profile, setProfile] = useState<any>(null);
   const { isAuthenticated, logout, setIsAuthenticated } = useAuth();
   const router = useRouter();
-  const { cart } = useCart();
+  const { cart, setCart } = useCart();
 
   useEffect(() => {
     async function checkAuth() {
@@ -24,6 +24,13 @@ const Navbar = () => {
     }
     checkAuth();
   }, []);
+
+  useEffect(() => {
+    const storedCart = localStorage.getItem('cart');
+    if (storedCart) {
+      setCart(JSON.parse(storedCart)); // Update cart context with localStorage data
+    }
+  }, [setCart]);
 
   async function handleLogout() {
     await logout();
@@ -109,6 +116,9 @@ const Navbar = () => {
                     <p className="text-sm text-gray-500">{profile.phone || 'No Phone Added'}</p>
                     <Link href="/profile" className="block mt-2 text-blue-500 hover:underline">
                       Edit Profile
+                    </Link>
+                    <Link href="/myOrder" className="block mt-2 text-blue-500 hover:underline">
+                      My Orders
                     </Link>
                     <button
                       onClick={handleLogout}

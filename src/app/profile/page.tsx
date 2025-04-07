@@ -11,11 +11,11 @@ export default function ProfilePage() {
   const [phone, setPhone] = useState('');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-
+  const [message, setMessage] = useState('');
 
   useEffect(() => {
     if (!isAuthenticated) {
-      router.push('/login'); // Redirect if not logged in
+      router.push('/login');
       return;
     }
 
@@ -41,8 +41,8 @@ export default function ProfilePage() {
     });
 
     if (res.ok) {
-      alert('Profile updated successfully');
-      router.push('/'); // Redirect to home
+      setMessage('Profile updated successfully');
+      // router.push('/');
     }
   }
 
@@ -59,7 +59,6 @@ export default function ProfilePage() {
           ❌
         </button>
       </div>
-      {/* <p className="text-black"><strong>Name:</strong> {profile.name}</p> */}
       <label className="block mt-4">
         <span className="text-gray-700 text-black">Name:</span>
         <input
@@ -69,7 +68,6 @@ export default function ProfilePage() {
           className="border p-2 w-full rounded-md mt-1 text-black"
         />
       </label>
-      {/* <p className="text-black"><strong>Email:</strong> {profile.email}</p> */}
       <label className="block mt-4">
         <span className="text-gray-700 text-black">Email:</span>
         <input
@@ -94,6 +92,7 @@ export default function ProfilePage() {
       >
         Update Profile
       </button>
+      {message && <p className="mt-4 text-green-600">{message}</p>}
     </div>
   );
 }

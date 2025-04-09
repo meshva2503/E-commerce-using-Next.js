@@ -19,24 +19,6 @@ export default function CartPage() {
 
   if (loading) return <p className="text-center text-gray-500">Loading cart...</p>;
 
-  // async function handlePayment() {
-  //   console.log("car123:t",cart);
-  //   const res = await fetch('/api/payment', {
-  //     method: 'POST',
-  //     headers: { 'Content-Type': 'application/json' },
-  //     body: JSON.stringify({ cart }),
-  //   });
-
-  //   const data = await res.json();
-  //   if (res.ok) {
-  //       clearCart();
-  //       router.push('/');
-  //       setMessage("Order placed successfully")
-  //     } else {
-  //       setMessage(data.error || 'Something went wrong');
-  //     }
-  // }
-
   return (
     <div className="max-w-5xl mx-auto mt-10 p-6 bg-white shadow-md rounded-md">
       <h1 className="text-3xl font-bold mb-6 text-center text-black">Shopping Cart</h1>
@@ -63,7 +45,7 @@ export default function CartPage() {
                 <tr key={product.productId} className="border-b border-gray-300">
                   {/* Product Info */}
                   <td className="p-3 flex items-center space-x-4">
-                    <img src={product.image} alt={product.name} className="w-16 h-16 object-cover rounded-md text-black" />
+                    <img src={product.image[0]} alt={product.name} className="w-16 h-16 object-cover rounded-md text-black" />
                     <div>
                       <h2 className="text-lg font-semibold text-black">{product.name}</h2>
                       <p className="text-gray-500 text-black">{product.description}</p>
@@ -95,7 +77,7 @@ export default function CartPage() {
                   <td className="p-3 text-right text-black">
                     <button 
                       onClick={() => removeFromCart(product.productId)} 
-                      className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                      className="px-4 py-2 bg-[#48A6A7] text-white rounded-lg hover:bg-[#006A71]"
                     >
                       Remove
                     </button>
@@ -113,7 +95,7 @@ export default function CartPage() {
 
             <button
             onClick={() => router.push('/payment')}
-            className="bg-green-500 text-white p-2 w-full"
+            className="bg-[#48A6A7] text-white p-2 w-full hover:bg-[#006A71]"
           >
             Pay Now
           </button>

@@ -65,7 +65,7 @@ const Navbar = () => {
   }, []);
 
   return (
-    <nav className="bg-gray-900 text-white relative z-50">
+    <nav className="bg-[#48A6A7] text-white relative z-50 sticky top-0">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           <div className="text-xl font-bold">
@@ -74,16 +74,16 @@ const Navbar = () => {
 
           {/* Menu Items (Desktop) */}
           <div className="hidden md:flex space-x-6 items-center">
-            <Link href="/" className="hover:text-gray-300">Home</Link>
-            <Link href="/about" className="hover:text-gray-300">About Us</Link>
-            <Link href="/contact" className="hover:text-gray-300">Contact Us</Link>
-            <Link href="/products" className="hover:text-gray-300">Products</Link>
-            <Link href="/cart" className="hover:text-gray-300">
+            <Link href="/" className="hover:border-b-2 hover:border-[#006A71]">Home</Link>
+            <Link href="/about" className="hover:border-b-2 hover:border-[#006A71]">About Us</Link>
+            <Link href="/contact" className="hover:border-b-2 hover:border-[#006A71]">Contact Us</Link>
+            <Link href="/products" className="hover:border-b-2 hover:border-[#006A71]">Products</Link>
+            <Link href="/cart" className="hover:text-[#006A71]">
               🛒 ({isAuthenticated ? cart.length : 0})
             </Link>
 
             {!isAuthenticated ? (
-              <Link href="/login" className="hover:text-blue-500 pl-10">
+              <Link href="/login" className="hover:text-[#006A71] pl-10">
                 Login
               </Link>
             ) : null}
@@ -143,7 +143,7 @@ const Navbar = () => {
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="md:hidden bg-gray-800">
+        <div className="md:hidden bg-[#48A6A7]">
           <Link href="/" className="block py-2 px-4 hover:bg-gray-700">Home</Link>
           <Link href="/about" className="block py-2 px-4 hover:bg-gray-700">About Us</Link>
           <Link href="/contact" className="block py-2 px-4 hover:bg-gray-700">Contact Us</Link>

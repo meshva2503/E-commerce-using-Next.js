@@ -32,7 +32,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <AuthProvider>
       <CartProvider>
         <Navbar />
-        <main className="flex-grow">{children}</main> 
+        <main className="flex-grow bg-white">{children}</main> 
         <Footer />
         </CartProvider>
         </AuthProvider>

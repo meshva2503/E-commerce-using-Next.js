@@ -6,9 +6,9 @@ import 'slick-carousel/slick/slick-theme.css';
 
 export default function Home() {
   return (
-    <div>
+    <div  className="bg-white">
       <Banner />
-      <section className="bg-black-50 py-10">
+      <section className="bg-[#F2EFE7] py-10 mb-10">
         <ProductCarousel />
       </section>
     </div>

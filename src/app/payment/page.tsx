@@ -78,7 +78,7 @@ export default function PaymentPage() {
           required
         />
         <p className="font-bold text-black">Total: ${finalTotal.toFixed(2)}</p>
-        <button type="submit" className="bg-blue-500 text-white p-2 w-full">
+        <button type="submit" className="bg-[#9ACBD0] text-white p-2 w-full hover:bg-[#48A6A7]">
           Pay Now
         </button>
       </form>

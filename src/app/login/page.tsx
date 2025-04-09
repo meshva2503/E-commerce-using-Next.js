@@ -93,19 +93,19 @@ export default function LoginPage() {
 
   return (
     <div className="max-w-md mx-auto mt-10">
-      <h1 className="text-2xl font-bold mb-4">Login</h1>
+      <h1 className="text-2xl font-bold mb-4 text-[#006A71]">Login</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         <input
           type="email" placeholder="Email" value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="border p-2 w-full"
+          className="border p-2 w-full text-black"
         />
         <input
           type="password" placeholder="Password" value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="border p-2 w-full"
+          className="border p-2 w-full text-black"
         />
-        <button type="submit" className="bg-blue-500 text-white p-2 w-full">
+        <button type="submit" className="bg-[#9ACBD0] text-white p-2 w-full hover:bg-[#48A6A7]">
           Login
         </button>
       </form>

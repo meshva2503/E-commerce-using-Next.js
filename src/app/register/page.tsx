@@ -33,28 +33,28 @@ export default function RegisterPage() {
 
   return (
     <div className="max-w-md mx-auto mt-10">
-      <h1 className="text-2xl font-bold mb-4">Register</h1>
+      <h1 className="text-2xl font-bold mb-4 text-[#006A71]">Register</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         <input 
           type="text" placeholder="Name" value={name} 
           onChange={(e) => setName(e.target.value)}
-          className="border p-2 w-full"
+          className="border p-2 w-full text-black"
         />
         <input 
           type="email" placeholder="Email" value={email} 
           onChange={(e) => setEmail(e.target.value)}
-          className="border p-2 w-full"
+          className="border p-2 w-full text-black"
         />
         <input 
           type="password" placeholder="Password" value={password} 
           onChange={(e) => setPassword(e.target.value)}
-          className="border p-2 w-full"
+          className="border p-2 w-full text-black"
         />
-        <button type="submit" className="bg-blue-500 text-white p-2 w-full">
+        <button type="submit" className="bg-[#9ACBD0] hover:bg-[#48A6A7] text-white p-2 w-full">
           Register
         </button>
       </form>
-      <p className='mt-[1rem]'>Already have an account? <span className='hover:text-blue-500 hover:underline '><Link href="/login">Login</Link></span></p>
+      <p className='mt-[1rem] text-[#9ACBD0]'>Already have an account? <span className='text-[#48A6A7] hover:text-[#006A71] hover:underline '><Link href="/login">Login</Link></span></p>
       {message && <p className="mt-4 text-green-600">{message}</p>}
     </div>
   );

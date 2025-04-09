@@ -40,11 +40,11 @@ export default function ContactPage() {
   }
 
   return (
-    <div className="max-w-lg mx-auto mt-10 p-6 bg-white shadow-md rounded-md">
+    <div className="max-w-lg mx-auto mt-10 p-6 bg-[#F2EFE7] shadow-md rounded-md">
       <h1 className="text-2xl font-bold mb-4 text-center text-black">Contact Us</h1>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        <label className="block text-black font-medium">Your Name</label>
+        <label className="block text-[#48A6A7] font-medium">Your Name</label>
         <input
           type="text"
           placeholder="Enter your name"
@@ -54,7 +54,7 @@ export default function ContactPage() {
           required
         />
 
-        <label className="block text-black font-medium">Your Email</label>
+        <label className="block text-[#48A6A7] font-medium">Your Email</label>
         <input
           type="email"
           placeholder="Enter your email"
@@ -64,7 +64,7 @@ export default function ContactPage() {
           required
         />
 
-        <label className="block text-black font-medium">Your Message</label>
+        <label className="block text-[#48A6A7] font-medium">Your Message</label>
         <textarea
           placeholder="Enter your message"
           value={message}
@@ -73,7 +73,7 @@ export default function ContactPage() {
           required
         ></textarea>
 
-        <button type="submit" className="bg-blue-500 text-white p-2 w-full">
+        <button type="submit" className="bg-[#48A6A7] text-white p-2 w-full">
           Send Message
         </button>
       </form>

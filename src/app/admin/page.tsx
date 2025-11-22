@@ -4,6 +4,22 @@ import { useRouter } from 'next/navigation';
 import AdminSidebar from "@/components/admin/AdminSidebar";
 
 export default function AdminPage() {
+
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+
+  useEffect(() => {
+    async function checkAuth() {
+      const res = await fetch('/api/auth/check-auth');
+      if (!res.ok) {
+        router.push('/login');
+      } else {
+        setLoading(false);
+      }
+    }
+    checkAuth();
+  }, []);
+
   return (
     <div className="flex">
       <AdminSidebar />

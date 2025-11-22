@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-export default function AdminLayout({ children }) {
+export default function AdminSidebar({ children }) {
   const pathname = usePathname();
 
   const links = [
@@ -42,9 +42,9 @@ export default function AdminLayout({ children }) {
           })}
         </ul>
       </div>
-      <div className="flex-1 p-4 overflow-y-auto">
+      {/* <div className="flex-1 overflow-y-auto">
         {children}
-      </div>
+      </div> */}
     </div>
   );
 }

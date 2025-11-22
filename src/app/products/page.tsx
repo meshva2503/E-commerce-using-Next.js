@@ -6,16 +6,25 @@ import Link from 'next/link'
 
 export default function ProductsPage() {
   const [products, setProducts] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const { addToCart } = useCart();
+  const productsPerPage = 9;
 
   useEffect(() => {
     async function fetchProducts() {
-      const res = await fetch('/api/products');
+      const res = await fetch(`/api/products?page=${currentPage}&limit=${productsPerPage}`);
       const data = await res.json();
       setProducts(data.products);
+      setTotalPages(Math.ceil(data.total / productsPerPage));
     }
     fetchProducts();
   }, []);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   return (
     <div className="max-w-5xl mx-auto mt-10 mb-10">

@@ -3,7 +3,7 @@ import { getUserIdFromToken } from '@/utils/auth';
 import { connectDB } from '@/lib/mongodb';
 import Order from '@/models/Order';
 import Payment from '@/models/Payment';
-import Cart from '@/models/Cart'; // Assuming a Cart model exists
+import Cart from '@/models/Cart';
 
 export async function POST(req: Request) {
   try {
@@ -13,32 +13,38 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { cardNumber, cvv, password, cartItems, totalAmount , finalTotal,tax ,createdAt   } = await req.json();
+    const { paymentId, cartItems, totalAmount, finalTotal, tax, createdAt } = await req.json();
 
-    if (!cardNumber || !cvv || !password || !cartItems.length) {
+    if (!paymentId || !cartItems.length) {
       return NextResponse.json({ error: 'Invalid payment details' }, { status: 400 });
     }
 
-    // Save order details
-    const order = await Order.create({
+    const orderData = {
       userId,
       totalAmount,
       finalTotal,
       tax,
-      createdAt,
+      paymentStatus: 'Paid',
+      paymentId,
+      orderStatus: 'Processing',
       items: cartItems.map((item: any) => ({
         productId: item.productId,
         name: item.name,
         quantity: item.quantity,
         price: item.price,
       })),
-    });
+    };
+
+    console.log('Creating order with data:', orderData);
+    const order = await Order.create(orderData);
+    console.log('Order created:', order.toObject());
 
     await Payment.create({
       userId,
       orderId: order._id,
-      cardNumber: `**** **** **** ${cardNumber.slice(-4)}`, // Masked card number
-      cvv: '***', // Mask CVV
+      paymentId,
+      amount: finalTotal,
+      status: 'Success'
     });
 
     // Clear user's cart
@@ -47,6 +53,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ message: 'Payment successful', orderId: order._id }, { status: 200 });
   } catch (error) {
     console.error('Payment Error:', error);
-    return NextResponse.json({ error: 'Payment processing failed' }, { status: 500 });
+    const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+    return NextResponse.json({ error: `Payment processing failed: ${errorMessage}` }, { status: 500 });
   }
 }

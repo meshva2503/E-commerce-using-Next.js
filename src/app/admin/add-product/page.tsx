@@ -4,10 +4,17 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import AdminSidebar from "@/components/admin/AdminSidebar";
 
+interface ICategory {
+  _id: string;
+  name: string;
+}
+
 export default function AdminPage() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
+  const [category, setCategory] = useState(''); // Add category state
+  const [categories, setCategories] = useState<ICategory[]>([]); // Categories list
   const [imageFiles, setImageFiles] = useState<File[]>([]); // Array to store multiple files
   const [previewUrls, setPreviewUrls] = useState<string[]>([]); // Array for preview URLs
   const [message, setMessage] = useState('');
@@ -15,16 +22,35 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function checkAuth() {
+    async function init() {
+      await Promise.all([checkAuth(), fetchCategories()]);
+      setLoading(false);
+    }
+    init();
+  }, []);
+
+  async function checkAuth() {
+    try {
       const res = await fetch('/api/auth/check-auth');
       if (!res.ok) {
         router.push('/login');
-      } else {
-        setLoading(false);
       }
+    } catch (e) {
+      console.error(e);
     }
-    checkAuth();
-  }, []);
+  }
+
+  async function fetchCategories() {
+    try {
+      const res = await fetch('/api/categories');
+      if (res.ok) {
+        const data = await res.json();
+        setCategories(data);
+      }
+    } catch (e) {
+      console.error('Failed to fetch categories');
+    }
+  }
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -44,6 +70,7 @@ export default function AdminPage() {
     formData.append('name', name);
     formData.append('description', description);
     formData.append('price', price);
+    formData.append('category', category); // Add category
 
     imageFiles.forEach((file) => {
       formData.append('images', file); // Use 'images' as the key for multiple files
@@ -62,6 +89,7 @@ export default function AdminPage() {
         setName('');
         setDescription('');
         setPrice('');
+        setCategory(''); // Reset category
         setImageFiles([]);
         setPreviewUrls([]);
       }
@@ -86,12 +114,14 @@ export default function AdminPage() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="border p-2 w-full text-black"
+              required
             />
             <textarea
               placeholder="Description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               className="border p-2 w-full text-black"
+              required
             />
             <input
               type="number"
@@ -99,7 +129,29 @@ export default function AdminPage() {
               value={price}
               onChange={(e) => setPrice(e.target.value)}
               className="border p-2 w-full text-black"
+              required
             />
+
+            {/* Category Dropdown */}
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="border p-2 w-full text-black bg-white"
+              required
+            >
+              <option value="">Select Category</option>
+              {categories.map((cat) => (
+                <option key={cat._id} value={cat.name}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
+            {categories.length === 0 && (
+              <p className="text-sm text-gray-500">
+                No categories found. <a href="/admin/categories" className="text-blue-600 hover:underline">Create a category first</a>.
+              </p>
+            )}
+
             <div>
               <input
                 type="file"

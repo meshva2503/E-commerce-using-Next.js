@@ -8,23 +8,32 @@ import { useRouter } from 'next/navigation';
 export default function ProductTablePage() {
     const [products, setProducts] = useState<any[]>([]);
     const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
     const router = useRouter();
 
     useEffect(() => {
-        async function fetchProducts() {
-            const res = await fetch('/api/products');
+        fetchProducts(currentPage);
+    }, [currentPage]);
+
+    async function fetchProducts(page: number) {
+        try {
+            const res = await fetch(`/api/products?page=${page}&limit=10`);
             const data = await res.json();
             setProducts(data.products);
+            setTotalPages(data.totalPages);
+        } catch (error) {
+            console.error('Failed to fetch products', error);
         }
-        fetchProducts();
-    }, []);
+    }
 
     const handleDelete = async (id: string) => {
         if (!confirm('Are you sure you want to delete this product?')) return;
 
         const res = await fetch(`/api/products/${id}`, { method: 'DELETE' });
         if (res.ok) {
-            setProducts((prev) => prev.filter((p) => p._id !== id));
+            // Refresh current page
+            fetchProducts(currentPage);
             alert('Product deleted.');
         } else {
             alert('Failed to delete product.');
@@ -64,7 +73,7 @@ export default function ProductTablePage() {
                             <tbody>
                                 {products.map((product, index) => (
                                     <tr key={product._id} className="border-t hover:bg-gray-50">
-                                        <td className="px-4 py-2 text-black">{index + 1}</td>
+                                        <td className="px-4 py-2 text-black">{(currentPage - 1) * 10 + index + 1}</td>
                                         <td className="px-4 py-2">
                                             <img
                                                 src={
@@ -116,6 +125,27 @@ export default function ProductTablePage() {
                                 )}
                             </tbody>
                         </table>
+                    </div>
+
+                    {/* Pagination Controls */}
+                    <div className="flex justify-center mt-6 space-x-4 items-center">
+                        <button
+                            disabled={currentPage === 1}
+                            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                            className="px-4 py-2 bg-gray-200 text-gray-700 rounded disabled:opacity-50 hover:bg-gray-300"
+                        >
+                            Previous
+                        </button>
+                        <span className="text-gray-700 font-medium">
+                            Page {currentPage} of {totalPages}
+                        </span>
+                        <button
+                            disabled={currentPage === totalPages}
+                            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                            className="px-4 py-2 bg-gray-200 text-gray-700 rounded disabled:opacity-50 hover:bg-gray-300"
+                        >
+                            Next
+                        </button>
                     </div>
                 </div>
             </div>

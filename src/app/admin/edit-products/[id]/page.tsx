@@ -9,7 +9,13 @@ interface Product {
   name: string;
   description: string;
   price: number;
-  images: string[];
+  image: string[];
+  category?: string | { _id: string; name: string };
+}
+
+interface ICategory {
+  _id: string;
+  name: string;
 }
 
 export default function EditProductPage() {
@@ -17,18 +23,38 @@ export default function EditProductPage() {
   const router = useRouter();
 
   const [product, setProduct] = useState<Product | null>(null);
+  const [categories, setCategories] = useState<ICategory[]>([]);
   const [message, setMessage] = useState('');
   const [newImages, setNewImages] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
 
   useEffect(() => {
-    async function fetchProduct() {
-      const res = await fetch(`/api/products/${id}`);
-      const data = await res.json();
-      setProduct(data.product);
+    async function fetchData() {
+      try {
+        const [productRes, categoriesRes] = await Promise.all([
+          fetch(`/api/products/${id}`),
+          fetch('/api/categories')
+        ]);
+
+        if (productRes.ok) {
+          const data = await productRes.json();
+          // Ensure image is always an array
+          const prod = data.product;
+          if (prod && !Array.isArray(prod.image)) {
+            prod.image = prod.image ? [prod.image] : [];
+          }
+          setProduct(prod);
+        }
+        if (categoriesRes.ok) {
+          const data = await categoriesRes.json();
+          setCategories(data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch data');
+      }
     }
 
-    if (id) fetchProduct();
+    if (id) fetchData();
   }, [id]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -41,6 +67,12 @@ export default function EditProductPage() {
     }
   };
 
+  const handleDeleteExistingImage = (index: number) => {
+    if (!product) return;
+    const updatedImages = product.image.filter((_, i) => i !== index);
+    setProduct({ ...product, image: updatedImages });
+  };
+
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -48,6 +80,14 @@ export default function EditProductPage() {
     formData.append('name', product!.name);
     formData.append('description', product!.description);
     formData.append('price', String(product!.price));
+
+    // Send existing images as JSON string
+    formData.append('existingImages', JSON.stringify(product!.image));
+
+    if (product?.category) {
+      const categoryValue = typeof product.category === 'object' ? (product.category as any).name : product.category;
+      formData.append('category', categoryValue);
+    }
 
     newImages.forEach((file) => {
       formData.append('images', file);
@@ -96,12 +136,44 @@ export default function EditProductPage() {
             className="border p-2 w-full text-black"
           />
 
+          {/* Category Dropdown */}
+          <select
+            value={typeof product.category === 'object' ? (product.category as any).name : product.category || ''}
+            onChange={(e) => setProduct({ ...product!, category: e.target.value })}
+            className="border p-2 w-full text-black bg-white"
+          >
+            <option value="">Select Category</option>
+            {categories.map((cat) => (
+              <option key={cat._id} value={cat.name}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
+          {categories.length === 0 && (
+            <p className="text-sm text-gray-500">
+              No categories found. <a href="/admin/categories" className="text-blue-600 hover:underline">Create a category first</a>.
+            </p>
+          )}
+
           <div>
             <label className="font-medium block mb-1 text-black">Current Images:</label>
-            <div className="flex gap-2 flex-wrap">
+            <div className="flex gap-4 flex-wrap">
               {product.image?.map((img, i) => (
-                <img key={i} src={img} alt="Product" className="w-24 h-24 object-cover rounded" />
+                <div key={i} className="relative group">
+                  <img src={img} alt="Product" className="w-24 h-24 object-cover rounded border" />
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteExistingImage(i)}
+                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:bg-red-600"
+                    title="Remove image"
+                  >
+                    ×
+                  </button>
+                </div>
               ))}
+              {(!product.image || product.image.length === 0) && (
+                <p className="text-gray-500 italic text-sm">No images currently uploaded.</p>
+              )}
             </div>
           </div>
 
@@ -109,9 +181,11 @@ export default function EditProductPage() {
             <label className="font-medium block mb-1 text-black">Upload New Images:</label>
             <input type="file" multiple accept="image/*" onChange={handleImageChange} className="w-full text-black" />
             {previewUrls.length > 0 && (
-              <div className="mt-2 flex gap-2 flex-wrap">
+              <div className="mt-2 flex gap-4 flex-wrap">
                 {previewUrls.map((url, i) => (
-                  <img key={i} src={url} alt="Preview" className="w-24 h-24 object-cover rounded" />
+                  <div key={i} className="relative">
+                    <img src={url} alt="Preview" className="w-24 h-24 object-cover rounded border-2 border-dashed border-gray-400" />
+                  </div>
                 ))}
               </div>
             )}

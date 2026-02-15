@@ -1,8 +1,21 @@
 import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/mongodb';
 import Product from '@/models/Product';
+import Category from '@/models/Category';
 import fs from 'fs/promises';
 import path from 'path';
+import { generateProductEmbedding } from '@/lib/embeddingService';
+import { upsertProductVector } from '@/lib/pineconeService';
+
+// Simple slugify helper
+function slugify(text: string) {
+  return text.toString().toLowerCase()
+    .replace(/\s+/g, '-')           // Replace spaces with -
+    .replace(/[^\w\-]+/g, '')       // Remove all non-word chars
+    .replace(/\-\-+/g, '-')         // Replace multiple - with single -
+    .replace(/^-+/, '')             // Trim - from start of text
+    .replace(/-+$/, '');            // Trim - from end of text
+}
 
 export async function POST(req) {
   try {
@@ -10,6 +23,7 @@ export async function POST(req) {
     const name = formData.get('name');
     const description = formData.get('description');
     const price = formData.get('price');
+    const categoryName = formData.get('category'); // Get category field (name)
     const imageFiles = formData.getAll('images');
     if (!name || !description || !price) {
       return NextResponse.json(
@@ -27,6 +41,26 @@ export async function POST(req) {
     }
 
     await connectDB();
+
+    // Resolve Category
+    let categoryId = undefined;
+    if (categoryName) {
+      const urlKey = slugify(categoryName as string);
+      let category = await Category.findOne({
+        $or: [{ name: categoryName }, { urlKey: urlKey }]
+      });
+
+      if (!category) {
+        // Create New Category
+        category = await Category.create({
+          name: categoryName,
+          urlKey: urlKey,
+          status: 'active'
+        });
+        console.log(`Created new category via Add Product: ${categoryName}`);
+      }
+      categoryId = category._id;
+    }
 
     const imageUrls = [];
 
@@ -60,8 +94,34 @@ export async function POST(req) {
       description,
       price: parsedPrice,
       image: imageUrls.length > 0 ? imageUrls : null,
+      category: categoryId, // Use resolved ID
     });
     await newProduct.save();
+
+    // Generate embedding and store in Pinecone
+    try {
+      const embedding = await generateProductEmbedding({
+        name: name as string,
+        description: description as string,
+        category: categoryName as string | undefined
+      });
+
+      await upsertProductVector(
+        newProduct._id.toString(),
+        embedding,
+        {
+          name: name as string,
+          category: categoryId?.toString(), // Use Category ID for metadata
+          price: parsedPrice
+        }
+      );
+
+      console.log('✅ Product vector stored in Pinecone');
+    } catch (embeddingError) {
+      // Log error but don't fail the product creation
+      console.error('⚠️ Failed to generate/store embedding:', embeddingError);
+      console.warn('Product saved to MongoDB but not indexed in Pinecone');
+    }
 
     return NextResponse.json(
       { message: 'Product added successfully', product: newProduct },
@@ -83,22 +143,46 @@ export async function GET(request) {
     const url = new URL(request.url);
     const page = parseInt(url.searchParams.get('page')) || 1;
     const limit = parseInt(url.searchParams.get('limit')) || 9;
+    const category = url.searchParams.get('category'); // Get category param
     const skip = (page - 1) * limit;
 
-    const total = await Product.countDocuments({});
-    const products = await Product.find({})
+    // Build filter object
+    const filter: any = {};
+    if (category) {
+      // Resolve category string to ID
+      // Try finding by urlKey (preferred) or name
+      const categoryDoc = await Category.findOne({
+        $or: [{ urlKey: category }, { name: category }]
+      });
+
+      if (categoryDoc) {
+        filter.category = categoryDoc._id;
+      } else {
+        // If category specified but not found, return empty
+        return NextResponse.json({
+          products: [],
+          total: 0,
+          currentPage: page,
+          totalPages: 0
+        }, { status: 200 });
+      }
+    }
+
+    const total = await Product.countDocuments(filter);
+    const products = await Product.find(filter)
+      .populate('category', 'name urlKey') // Populate category details
       .skip(skip)
       .limit(limit);
 
-      return NextResponse.json(
-        { 
-          products,
-          total,
-          currentPage: page,
-          totalPages: Math.ceil(total / limit)
-        }, 
-        { status: 200 }
-      );
+    return NextResponse.json(
+      {
+        products,
+        total,
+        currentPage: page,
+        totalPages: Math.ceil(total / limit)
+      },
+      { status: 200 }
+    );
   } catch (error) {
     console.error('Error fetching products:', error);
     return NextResponse.json(

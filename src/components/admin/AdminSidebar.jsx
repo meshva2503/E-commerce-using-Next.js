@@ -8,6 +8,7 @@ export default function AdminSidebar() {
 
   const links = [
     { href: '/admin/products', label: 'Products' },
+    { href: '/admin/categories', label: 'Categories' },
     { href: '/admin/orders', label: 'Orders' },
   ];
 
@@ -25,9 +26,11 @@ export default function AdminSidebar() {
             const isActive =
               link.href === '/admin/products'
                 ? isProductsActive
-                : link.href === '/admin/orders'
-                  ? pathname.startsWith('/admin/orders')
-                  : pathname === link.href;
+                : link.href === '/admin/categories'
+                  ? pathname.startsWith('/admin/categories')
+                  : link.href === '/admin/orders'
+                    ? pathname.startsWith('/admin/orders')
+                    : pathname === link.href;
 
             return (
               <li key={link.href}>

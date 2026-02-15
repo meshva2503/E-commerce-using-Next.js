@@ -4,7 +4,11 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import AdminSidebar from "@/components/admin/AdminSidebar";
 
-export default function AdminOrderDetailsPage({ params }: { params: { id: string } }) {
+import { useParams } from 'next/navigation';
+
+export default function AdminOrderDetailsPage() {
+   const params = useParams();
+   const id = typeof params?.id === "string" ? params.id : undefined;
     const [order, setOrder] = useState<any>(null);
     const [user, setUser] = useState<any>(null);
     const [loading, setLoading] = useState(true);
@@ -13,7 +17,7 @@ export default function AdminOrderDetailsPage({ params }: { params: { id: string
     useEffect(() => {
         async function fetchOrder() {
             try {
-                const res = await fetch(`/api/admin/orders/${params.id}`);
+                const res = await fetch(`/api/admin/orders/${id}`);
                 const data = await res.json();
                 if (res.ok) {
                     setOrder(data.order);
@@ -29,7 +33,7 @@ export default function AdminOrderDetailsPage({ params }: { params: { id: string
             }
         }
         fetchOrder();
-    }, [params.id, router]);
+    }, [id, router]);
 
     if (loading) return <div className="p-10 text-center">Loading order details...</div>;
     if (!order) return null;
@@ -78,8 +82,8 @@ export default function AdminOrderDetailsPage({ params }: { params: { id: string
                             <p className="text-gray-600"><span className="font-medium">Payment ID:</span> {order.paymentId || 'N/A'}</p>
                             <p className="text-gray-600 mt-2"><span className="font-medium">Order Status:</span>
                                 <span className={`ml-2 px-2 py-0.5 rounded text-white text-xs ${order.orderStatus === 'Processing' ? 'bg-blue-500' :
-                                        order.orderStatus === 'Delivered' ? 'bg-green-600' :
-                                            order.orderStatus === 'Cancelled' ? 'bg-red-500' : 'bg-gray-500'
+                                    order.orderStatus === 'Delivered' ? 'bg-green-600' :
+                                        order.orderStatus === 'Cancelled' ? 'bg-red-500' : 'bg-gray-500'
                                     }`}>
                                     {order.orderStatus || 'Pending'}
                                 </span>

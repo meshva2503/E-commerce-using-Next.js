@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-export default function AdminSidebar({ children }) {
+export default function AdminSidebar() {
   const pathname = usePathname();
 
   const links = [
@@ -24,16 +24,17 @@ export default function AdminSidebar({ children }) {
           {links.map((link) => {
             const isActive =
               link.href === '/admin/products'
-                ? isProductsActive 
-                : pathname === link.href;
+                ? isProductsActive
+                : link.href === '/admin/orders'
+                  ? pathname.startsWith('/admin/orders')
+                  : pathname === link.href;
 
             return (
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className={`block p-2 px-4 rounded hover:bg-[#DCEEF1] text-black ${
-                    isActive ? 'bg-[#DCEEF1] font-medium' : ''
-                  }`}
+                  className={`block p-2 px-4 rounded hover:bg-[#DCEEF1] text-black ${isActive ? 'bg-[#DCEEF1] font-medium' : ''
+                    }`}
                 >
                   {link.label}
                 </Link>

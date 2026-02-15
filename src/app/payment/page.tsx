@@ -24,17 +24,18 @@ export default function PaymentPage() {
       return;
     }
 
+    // Simulate Stripe payment ID generation
+    const mockPaymentId = `pay_${Math.random().toString(36).substring(2, 15)}`;
+
     const res = await fetch('/api/payment/process', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        cardNumber,
-        cvv,
-        password,
+        paymentId: mockPaymentId,
         cartItems: cart,
         totalAmount: totalAmount,
-        finalTotal:finalTotal ,
-        tax:taxAmount,
+        finalTotal: finalTotal,
+        tax: taxAmount,
         createdAt: new Date().toISOString()
       }),
     });

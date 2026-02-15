@@ -2,18 +2,25 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IPayment extends Document {
   userId: string;
-  orderId: string; // Link payment to an order
-  cardNumber: string;
-  cvv: string;
+  orderId: string;
+  paymentId?: string;
+  amount?: number;
+  status?: string;
   createdAt: Date;
 }
 
 const PaymentSchema = new Schema<IPayment>({
   userId: { type: String, required: true },
-  orderId: { type: String, required: true }, // New field
-  cardNumber: { type: String, required: true },
-  cvv: { type: String, required: true },
+  orderId: { type: String, required: true },
+  paymentId: { type: String },
+  amount: { type: Number },
+  status: { type: String },
   createdAt: { type: Date, default: Date.now },
 });
 
-export default mongoose.models.Payment || mongoose.model<IPayment>('Payment', PaymentSchema);
+// Delete the cached model to ensure schema updates are applied
+if (mongoose.models.Payment) {
+  delete mongoose.models.Payment;
+}
+
+export default mongoose.model<IPayment>('Payment', PaymentSchema);

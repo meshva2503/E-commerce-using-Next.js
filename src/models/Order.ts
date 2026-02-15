@@ -8,6 +8,7 @@ export interface IOrder extends Document {
   finalTotal: number;
   paymentStatus: string;
   paymentId: string;
+  orderStatus: string;
 }
 
 const OrderSchema = new Schema<IOrder>({
@@ -23,7 +24,14 @@ const OrderSchema = new Schema<IOrder>({
   totalAmount: { type: Number, required: true },
   tax: { type: Number, required: true },
   finalTotal: { type: Number, required: true },
-  paymentStatus: { type: String, enum: ['Pending', 'Paid'], default: 'Pending' },
+  paymentStatus: { type: String, enum: ['Pending', 'Paid', 'Failed'], default: 'Pending' },
+  paymentId: { type: String },
+  orderStatus: { type: String, enum: ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'], default: 'Pending' },
 }, { timestamps: true });
 
-export default mongoose.models.Order || mongoose.model<IOrder>('Order', OrderSchema);
+// Delete the cached model to ensure schema updates are applied
+if (mongoose.models.Order) {
+  delete mongoose.models.Order;
+}
+
+export default mongoose.model<IOrder>('Order', OrderSchema);

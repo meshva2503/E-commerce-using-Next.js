@@ -1,0 +1,10 @@
+/* Carousel.css */
+.slick-prev:before,
+.slick-next:before {
+  color: #006A71 !important; /* Your desired arrow color */
+}
+
+.slick-prev:hover:before,
+.slick-next:hover:before {
+  color: #9ACBD0 !important; /* Hover color */
+}

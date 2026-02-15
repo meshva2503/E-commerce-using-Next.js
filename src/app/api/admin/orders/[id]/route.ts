@@ -3,7 +3,8 @@ import { connectDB } from '@/lib/mongodb';
 import Order from '@/models/Order';
 import User from '@/models/User';
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, props: { params: Promise<{ id: string }> }) {
+    const params = await props.params;
     try {
         await connectDB();
         const order = await Order.findById(params.id);
